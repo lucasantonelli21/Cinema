@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Movie {
+  id                    Int      @id @default(autoincrement())
+  titulo                String
+  sinopse               String
+  genero                String
+  classificacao         Int
+  duracao               Int
+  dataEstreia           DateTime @default(now())
+  imagemUrl             String
+  dataCriacao           DateTime @default(now())
+  dataAtualizacao       DateTime @updatedAt
+  sessions              Session[]
+  @@map("Movies")
+}
+
+model Room {
+  id                    Int      @id @default(autoincrement())
+  capacidade            Int
+  tipo                  String
+  dataCriacao           DateTime @default(now())
+  dataAtualizacao       DateTime @updatedAt
+  sessions              Session[]
+  @@map("Rooms")
+}
+
+model Session {
+  id                    Int      @id @default(autoincrement())
+  movie_id              Int
+  room_id               Int
+  dataHora              DateTime @default(now())
+  idioma                String
+  preco                 Float    @default(0.0)
+  formato               String
+  dataCriacao           DateTime @default(now())
+  dataAtualizacao       DateTime @updatedAt
+  movie                 Movie    @relation(fields: [movie_id], references: [id], onDelete: Cascade)
+  room                  Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  tickets               Ticket[]
+  @@map("Sessions")
+}
+
+model Ticket {
+  id                    Int      @id @default(autoincrement())
+  session_id            Int
+  cpf                   String
+  assento               String
+  formaPagamento        String
+  dataCriacao           DateTime @default(now())
+  dataAtualizacao       DateTime @updatedAt
+  session               Session @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  @@map("Tickets")
+}

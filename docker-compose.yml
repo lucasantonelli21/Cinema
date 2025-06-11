@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # API NestJS
+  api:
+    build:
+      context: ./api-cinema
+      dockerfile: Dockerfile
+    container_name: cinema-api-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: SIGA A DOCUMENTAÇÃO PARA CONFIGURAR O BANCO DE DADOS
+      JWT_SECRET: dev-jwt-secret-key
+      PORT: 3000
+    networks:
+      - cinema-network
+    volumes:
+      - ./api-cinema:/app
+      - /app/node_modules
+      - ./api-cinema/uploads:/app/uploads
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./cinema-react
+      dockerfile: Dockerfile
+    container_name: cinema-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - api
+    networks:
+      - cinema-network
+    volumes:
+      - ./cinema-react:/app
+      - /app/node_modules
+
+networks:
+  cinema-network:
+    driver: bridge
